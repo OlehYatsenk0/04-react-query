@@ -10,6 +10,7 @@ import MovieModal from '../MovieModal/MovieModal';
 
 import { fetchMovies } from '../../services/movieService';
 import type { Movie } from '../../types/movie';
+import type { MovieApiResponse } from '../../types/movie';
 
 import ReactPaginate from 'react-paginate';
 
@@ -25,11 +26,11 @@ export default function App() {
     isLoading,
     isError,
     isSuccess,
-  } = useQuery({
+  } = useQuery<MovieApiResponse>({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: query.trim().length > 0,
-    keepPreviousData: true,
+    placeholderData: (prev) => prev, // аналог keepPreviousData: true
   });
 
   const handleSearch = (newQuery: string) => {
@@ -59,7 +60,6 @@ export default function App() {
     <div className={styles.app}>
       <SearchBar onSubmit={handleSearch} />
 
-      {/* Пагинация — СВЕРХУ */}
       {isSuccess && data.results.length > 0 && data.total_pages > 1 && (
         <ReactPaginate
           pageCount={data.total_pages}
