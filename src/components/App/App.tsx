@@ -1,23 +1,29 @@
-import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Toaster, toast } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Toaster, toast } from "react-hot-toast";
 
-import SearchBar from '../SearchBar/SearchBar';
-import MovieGrid from '../MovieGrid/MovieGrid';
-import Loader from '../Loader/Loader';
-import ErrorMessage from '../ErrorMessage/ErrorMessage';
-import MovieModal from '../MovieModal/MovieModal';
+import SearchBar from "../SearchBar/SearchBar";
+import MovieGrid from "../MovieGrid/MovieGrid";
+import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import MovieModal from "../MovieModal/MovieModal";
 
-import { fetchMovies } from '../../services/movieService';
-import type { Movie } from '../../types/movie';
-import type { MovieApiResponse } from '../../types/movie';
+import { fetchMovies } from "../../services/movieService";
+import type { Movie } from "../../types/movie";
 
-import ReactPaginate from 'react-paginate';
+import ReactPaginate from "react-paginate";
 
-import styles from './App.module.css';
+import styles from "./App.module.css";
+
+interface MovieApiResponse {
+  page: number;
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
+}
 
 export default function App() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
@@ -27,10 +33,10 @@ export default function App() {
     isError,
     isSuccess,
   } = useQuery<MovieApiResponse>({
-    queryKey: ['movies', query, page],
+    queryKey: ["movies", query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: query.trim().length > 0,
-    placeholderData: (prev) => prev, // аналог keepPreviousData: true
+    placeholderData: (prev) => prev,
   });
 
   const handleSearch = (newQuery: string) => {
@@ -52,13 +58,14 @@ export default function App() {
 
   useEffect(() => {
     if (isSuccess && data.results.length === 0) {
-      toast('No movies found for your request.');
+      toast("No movies found for your request.");
     }
   }, [isSuccess, data]);
 
   return (
     <div className={styles.app}>
-      <SearchBar onSubmit={handleSearch} />
+      
+      <SearchBar onSearch={handleSearch} />
 
       {isSuccess && data.results.length > 0 && data.total_pages > 1 && (
         <ReactPaginate
